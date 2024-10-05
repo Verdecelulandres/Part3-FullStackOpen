@@ -1,0 +1,27 @@
+{
+  "name": "part3",
+  "version": "1.0.0",
+  "description": "Backend excercises with Node, Express, MongoDB, etc.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Verdecelulandres/Part3-FullStackOpen.git"
+  },
+  "author": "Andres Laverde",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Verdecelulandres/Part3-FullStackOpen/issues"
+  },
+  "homepage": "https://github.com/Verdecelulandres/Part3-FullStackOpen#readme",
+  "dependencies": {
+    "express": "^4.21.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.7"
+  }
+}

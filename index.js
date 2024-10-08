@@ -35,6 +35,16 @@ app.get('/info', (request, response)=>{
     const currentTime = new Date();
     response.send(`<p>Phonebook has info for ${persons.length} people</p><p>${currentTime}</p>`);
 });
+app.get('/api/persons/:id', (request, response) =>{
+    const id = request.params.id;
+    const person = persons.find(p => p.id === id);
+    if(person) {
+        response.json(person);
+    } else {
+        response.status(404).end();
+    }
+});
+
 
 const PORT = 3001;
 app.listen(PORT, () => {

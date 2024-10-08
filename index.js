@@ -48,8 +48,32 @@ app.get('/api/persons/:id', (request, response) =>{
     }
 });
 
+//POST requests-------------------------
+app.post('/api/persons', (request, response) =>{
+    const body = request.body;
+    const hasName = persons.some(p => p.name === body.name);
+    const hasNumber = persons.some(p => p.number === body.number);
+    if(!body.name){
+        return response.status(400).json({error: 'name missing'});
+    } else if(!body.number){
+        return response.status(400).json({error: 'number missing'});
+    } else if(hasName) {
+        return response.status(400).json({error: 'name must be unique'});
+    } else if(hasNumber) {
+        return response.status(400).json({error: 'number must be unique'});
+    }
+    const person = {
+        id: String(Math.floor(Math.random()*100000)),
+        name: body.name,
+        number: body.number
+    }
+    persons = persons.concat(person);
+    response.json(person);
+});
+
 
 //DELETE requests------------------------------
+//deletes specified person by id
 app.delete('/api/persons/:id', (request, response) =>{
     const id = request.params.id;
     persons = persons.filter(p => p.id !== id);

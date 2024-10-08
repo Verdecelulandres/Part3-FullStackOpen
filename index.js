@@ -1,7 +1,7 @@
 const express = require ('express');
 const app = express();
 
-const persons = [
+let persons = [
     { 
       "id": "1",
       "name": "Arto Hellas", 
@@ -28,13 +28,16 @@ app.use(express.json());
 
 //GET requests----------------------
 
-app.get('/api/persons', (request, response) =>{
-    response.json(persons);
-});
+//Phonebook info
 app.get('/info', (request, response)=>{
     const currentTime = new Date();
     response.send(`<p>Phonebook has info for ${persons.length} people</p><p>${currentTime}</p>`);
 });
+//Returns all contacts
+app.get('/api/persons', (request, response) =>{
+    response.json(persons);
+});
+//Returns single contact by id
 app.get('/api/persons/:id', (request, response) =>{
     const id = request.params.id;
     const person = persons.find(p => p.id === id);
@@ -43,6 +46,14 @@ app.get('/api/persons/:id', (request, response) =>{
     } else {
         response.status(404).end();
     }
+});
+
+
+//DELETE requests------------------------------
+app.delete('/api/persons/:id', (request, response) =>{
+    const id = request.params.id;
+    persons = persons.filter(p => p.id !== id);
+    response.status(204).end();
 });
 
 

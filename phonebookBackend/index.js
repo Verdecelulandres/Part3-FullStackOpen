@@ -3,7 +3,17 @@ const morgan = require('morgan');
 const app = express();
 
 app.use(express.json());
-app.use(morgan('combined'));
+morgan.token('logData', (req, res) => JSON.stringify(res.logData));
+app.use(morgan(function (tokens, req, res) {    
+    return [
+        tokens.method(req, res),
+        tokens.url(req, res),
+        tokens.status(req, res),
+        tokens.res(req, res, 'content-length'), '-',
+        tokens['response-time'](req, res), 'ms',
+        tokens.logData(req, res)
+    ].join(' ')
+}));
 
 let persons = [
     {
@@ -45,6 +55,7 @@ app.get('/api/persons/:id', (request, response) => {
     const id = request.params.id;
     const person = persons.find(p => p.id === id);
     if (person) {
+        response.logData = person;
         response.json(person);
     } else {
         response.sendStatus(404).end();
@@ -53,7 +64,7 @@ app.get('/api/persons/:id', (request, response) => {
 app.delete('/api/persons/:id', (request, response) => {
     const id = request.params.id;
     persons = persons.filter(p => p.id !== id);
-    
+
     response.sendStatus(204).end();
 });
 
@@ -62,7 +73,7 @@ const generateId = () => {
     do {
         newId = Math.random() * 10000;
     } while (persons.some(p => p.id === newId));
-    return String(newId);
+    return String(Math.floor(newId));
 }
 
 app.post('/api/persons', (request, response) => {
@@ -80,6 +91,7 @@ app.post('/api/persons', (request, response) => {
             id: generateId()
         }
         persons = persons.concat(newEntry);
+        response.logData = newEntry;
         response.json(newEntry);
     } else {
         return response.status(400).json({

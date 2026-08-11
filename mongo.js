@@ -31,6 +31,17 @@ if (process.argv.length === 3) {
 
 } else if (process.argv.length === 5) {
 
-    
+    const entryName = process.argv[3];
+    const entryPhone = process.argv[4];
+
+    const entry = new Entry({
+        name: entryName,
+        phone: entryPhone,
+    })
+
+    entry.save().then(result => {
+        console.log(`added ${entryName} number ${entryPhone} to phonebook`);
+        mongoose.connection.close();
+    });
 }
 

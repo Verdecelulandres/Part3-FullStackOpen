@@ -29,6 +29,14 @@ const Entry = mongoose.model('Entry', phonebookEntrySchema);
 
 if (process.argv.length === 3) {
 
+    Entry.find({}).then(result => {
+        console.log('phonebook:');
+        result.forEach(entry => {
+            console.log(entry.name, entry.phone);
+        });
+        mongoose.connection.close();
+    });
+
 } else if (process.argv.length === 5) {
 
     const entryName = process.argv[3];

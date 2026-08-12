@@ -85,21 +85,25 @@ const generateId = () => {
 
 app.post('/api/persons', (request, response) => {
     const body = request.body;
-    if (body.name && body.number) {
-        const personExists = persons.some(p => p.name === body.name);
-        if (personExists) {
-            return response.status(400).json({
-                error: 'person already exists'
-            });
-        }
-        const newEntry = {
+    console.log(body);
+
+    if (body.name && body.phone) {
+        // const personExists = persons.some(p => p.name === body.name);
+        // if (personExists) {
+        //     return response.status(400).json({
+        //         error: 'person already exists'
+        //     });
+        // }
+        const newEntry = new Entry({
             name: body.name,
-            number: body.number,
-            id: generateId()
-        }
-        persons = persons.concat(newEntry);
-        response.logData = newEntry;
-        response.json(newEntry);
+            phone: body.phone
+        });
+        newEntry.save()
+            .then(result => {
+                response.logData = newEntry;
+                response.json(newEntry);
+            });
+
     } else {
         return response.status(400).json({
             error: 'name or number missing'

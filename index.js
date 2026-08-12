@@ -1,11 +1,13 @@
+require('dotenv').config();
 const express = require('express');
+const Entry = require('./models/phonebookEntry');
 const morgan = require('morgan');
 const app = express();
 
 app.use(express.json());
 app.use(express.static('dist'));
 morgan.token('logData', (req, res) => JSON.stringify(res.logData));
-app.use(morgan(function (tokens, req, res) {    
+app.use(morgan(function (tokens, req, res) {
     return [
         tokens.method(req, res),
         tokens.url(req, res),
@@ -40,26 +42,31 @@ let persons = [
 ];
 
 app.get('/api/persons', (request, response) => {
-    response.json(persons);
+    Entry.find({}).then(result => {
+        response.json(result);
+    });
 });
 
 app.get('/info', (request, response) => {
     const receivedAt = new Date();
-    const content = `
-    <h3>Phonebook has info for ${persons.length} people</h3>
-    <p>${receivedAt}</p>
-    `;
-    response.send(content);
+    Entry.find({}).then(result => {
+        const content = `
+            <h3>Phonebook has info for ${result.length} people</h3>
+            <p>${receivedAt}</p>
+        `;
+        response.send(content);
+    });
 });
 app.get('/api/persons/:id', (request, response) => {
     const id = request.params.id;
-    const person = persons.find(p => p.id === id);
-    if (person) {
-        response.logData = person;
-        response.json(person);
-    } else {
-        response.sendStatus(404).end();
-    }
+    Entry.findById(id)
+        .then(result => {
+            response.logData = result;
+            response.json(result);
+        })
+        .catch(error => {
+            response.sendStatus(404).end();
+        });
 });
 app.delete('/api/persons/:id', (request, response) => {
     const id = request.params.id;
@@ -100,7 +107,7 @@ app.post('/api/persons', (request, response) => {
     }
 });
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 })

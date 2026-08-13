@@ -70,9 +70,14 @@ app.get('/api/persons/:id', (request, response) => {
 });
 app.delete('/api/persons/:id', (request, response) => {
     const id = request.params.id;
-    persons = persons.filter(p => p.id !== id);
-
-    response.sendStatus(204).end();
+    Entry.findByIdAndDelete(id)
+        .then(result => {
+            response.sendStatus(204).end();
+        })
+        .catch(error => {
+            console.log(error.message);
+            response.sendStatus(500).end();
+        });
 });
 
 const generateId = () => {

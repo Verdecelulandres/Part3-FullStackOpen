@@ -123,6 +123,7 @@ app.put('/api/persons/:id', (request, response, next) => {
     const body = request.body;
     
     if (body.name && body.phone) {
+        // If this was findByIDAndUpdate() we would need to specify the runValidators option.
         Entry.findById(id)
             .then(entry => {
                 if (entry) {

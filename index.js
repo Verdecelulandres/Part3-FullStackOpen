@@ -94,8 +94,6 @@ const generateId = () => {
 
 app.post('/api/persons', (request, response, next) => {
     const body = request.body;
-    console.log(body);
-
     if (body.name && body.phone) {
         // const personExists = persons.some(p => p.name === body.name);
         // if (personExists) {
@@ -115,7 +113,36 @@ app.post('/api/persons', (request, response, next) => {
             .catch(error => next(error))
 
     } else {
-        return response.status(400).json({
+        return response.status(400).send({
+            error: 'name or number missing'
+        });
+    }
+});
+app.put('/api/persons/:id', (request, response, next) => {
+    const id = request.params.id;
+    const body = request.body;
+    
+    if (body.name && body.phone) {
+        Entry.findById(id)
+            .then(entry => {
+                if (entry) {
+                    
+                   entry.name = body.name;
+                   entry.phone = body.phone;
+
+                    return entry.save()
+                        .then(updatedEntry => {
+                            response.logData = updatedEntry;
+                            response.json(updatedEntry);
+                        })
+                        .catch(error => next(error));
+                } else {
+                    return response.sendStatus(404).end();
+                }
+            })
+            .catch(error => next(error));
+    } else {
+        return response.status(400).send({
             error: 'name or number missing'
         });
     }
@@ -124,7 +151,7 @@ app.post('/api/persons', (request, response, next) => {
 const errorHandler = (error, request, response, next) => {
     console.log(error.message);
     if (error.name === 'CastError') {
-        return response.status().send({ error: 'malformatted id' });
+        return response.status(400).send({ error: 'malformatted id' });
     }
     next(error);
 }

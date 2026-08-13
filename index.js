@@ -57,27 +57,31 @@ app.get('/info', (request, response) => {
         response.send(content);
     });
 });
-app.get('/api/persons/:id', (request, response) => {
+app.get('/api/persons/:id', (request, response, next) => {
     const id = request.params.id;
     Entry.findById(id)
         .then(result => {
-            response.logData = result;
-            response.json(result);
+            if (result) {
+                response.logData = result;
+                response.json(result);
+            } else {
+                response.sendStatus(404).end();
+            }
+
         })
-        .catch(error => {
-            response.sendStatus(404).end();
-        });
+        .catch(error => next(error));
 });
-app.delete('/api/persons/:id', (request, response) => {
+app.delete('/api/persons/:id', (request, response, next) => {
     const id = request.params.id;
     Entry.findByIdAndDelete(id)
         .then(result => {
-            response.sendStatus(204).end();
+            if (result) {
+                response.sendStatus(204).end();
+            } else {
+                response.sendStatus(404).end();
+            }
         })
-        .catch(error => {
-            console.log(error.message);
-            response.sendStatus(500).end();
-        });
+        .catch(error => next(error));
 });
 
 const generateId = () => {
@@ -88,7 +92,7 @@ const generateId = () => {
     return String(Math.floor(newId));
 }
 
-app.post('/api/persons', (request, response) => {
+app.post('/api/persons', (request, response, next) => {
     const body = request.body;
     console.log(body);
 
@@ -107,7 +111,8 @@ app.post('/api/persons', (request, response) => {
             .then(result => {
                 response.logData = newEntry;
                 response.json(newEntry);
-            });
+            })
+            .catch(error => next(error))
 
     } else {
         return response.status(400).json({
@@ -115,6 +120,16 @@ app.post('/api/persons', (request, response) => {
         });
     }
 });
+
+const errorHandler = (error, request, response, next) => {
+    console.log(error.message);
+    if (error.name === 'CastError') {
+        return response.status().send({ error: 'malformatted id' });
+    }
+    next(error);
+}
+
+app.use(errorHandler);
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
